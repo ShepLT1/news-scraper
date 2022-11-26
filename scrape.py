@@ -1,11 +1,21 @@
 import requests
 from bs4 import BeautifulSoup
 import pprint
+import sys
 
-res = requests.get("https://news.ycombinator.com/news")
-soup = BeautifulSoup(res.text, "html.parser")
-links = soup.select(".titleline > a")
-subtext = soup.select(".subtext")
+
+def main(pages):
+    hnList = []
+    url = "https://news.ycombinator.com/news"
+    for num in range(int(pages)):
+        if num > 0:
+            url += f"?p={str(num + 1)}"
+        res = requests.get(url)
+        soup = BeautifulSoup(res.text, "html.parser")
+        links = soup.select(".titleline > a")
+        subtext = soup.select(".subtext")
+        hnList += create_custom_hn(links, subtext)
+    return sort_stories_by_votes(hnList)
 
 
 def sort_stories_by_votes(hnlist):
@@ -22,7 +32,8 @@ def create_custom_hn(links, subtext):
             points = int(vote[0].getText().replace(" points", ""))
             if points > 99:
                 hn.append({"title": title, "link": href, "votes": points})
-    return sort_stories_by_votes(hn)
+    return hn
 
 
-pprint.pprint(create_custom_hn(links, subtext))
+if __name__ == "__main__":
+    sys.exit(pprint.pprint(main(sys.argv[1])))
