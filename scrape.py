@@ -8,8 +8,10 @@ def main(pages):
     hnList = []
     url = "https://news.ycombinator.com/news"
     for num in range(int(pages)):
-        if num > 0:
+        if num == 1:
             url += f"?p={str(num + 1)}"
+        if num > 1:
+            url = url[:-1] + str(num + 1)
         res = requests.get(url)
         soup = BeautifulSoup(res.text, "html.parser")
         links = soup.select(".titleline > a")
